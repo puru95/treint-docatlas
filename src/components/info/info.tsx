@@ -13,6 +13,9 @@ import SelectedDiseasesView from "./views/selected-diseases-view";
 import { selectedDis } from "./types/treatmentPlan";
 import TreatmentPlanView from "./views/treatment-plan-view";
 import MedicalQuestionnaire from "./views/medicalQuestionnaire";
+import DynamicProgressbar from "../common/progressBar";
+import FullScreenLoader from "../common/fullScreenLoader";
+import { loadavg } from "os";
 
 
 type Sym = { id: number; name: string };
@@ -44,6 +47,7 @@ const Info = () => {
     const [selectedOptions, setSelectedOptions] = useState<any>('');
     const [selectedTabInDocMarine, setSelectedTabInDocMarine] = useState<any>(mobile_tab ? mobile_tab : 'SYMPTOMS');
     const [isLoading, setIsLoading] = useState(false);
+    const [isDLoading, setIsDLoading] = useState(false);
     const [subCategory, setSubCategory] = useState<any>('');
     const [dropdownOptions, setDropdownOptions] = useState<any>([]);
     const [searchInput, setSearchInput] = useState<string>();
@@ -294,19 +298,22 @@ const Info = () => {
     const handleGetDiseaseDetails = async (d_id: number) => {
 
         if (d_id) {
-
+            setIsDLoading(true);
             const hasId = selectedDis.some(item => item.id === d_id)
 
             if (hasId) {
                 setSelectedDis((prev) => prev.filter((item) => item.id !== d_id));
+                setIsDLoading(false);
             } else {
                 const data = await fetchDiaseaseDetails(d_id);
 
                 data && setSelectedDis(prev => [...prev, data]);
+                setIsDLoading(false);
             }
 
         } else {
             setError('Something went wrong');
+            setIsDLoading(false);
         }
     }
 
@@ -318,7 +325,7 @@ const Info = () => {
 
     const handleSubmitAnswers = async (answers: any) => {
 
-        setIsLoading(true);
+        setIsDLoading(true);
 
         const data = {
             thread_id: threadId,
@@ -328,7 +335,7 @@ const Info = () => {
         const response = await submitDiagnosisData(data);
 
         setAiPlan(response?.treatment_plan);
-        setIsLoading(false);
+        setIsDLoading(false);
 
     }
 
@@ -340,6 +347,7 @@ const Info = () => {
 
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
+            
             <div className={`${selectedOptions ? "overflow-hidden" : ""} w-[1024px]  text-white px-2 pb-6 z-10 text-wrap`}>
                 <div className=" sticky top-0 z-20">
                     <div className="hidden md:block ">
@@ -414,7 +422,8 @@ const Info = () => {
                 <div className=" modal-content">
                     {isLoading ?
                         <div className="flex justify-center items-center h-[450px]">
-                            <LoaderIcon style={{ color: '#2D53EB' }} className="text-blue-500" />
+                            {/* <LoaderIcon style={{ color: '#2D53EB' }} className="text-blue-500" /> */}
+                            <FullScreenLoader />
                         </div> :
                         <div className="flex ">
                             {type === 'NORMAL' && diseasesData.length > 0 && <div className="flex w-full border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
@@ -426,10 +435,10 @@ const Info = () => {
                                             <div className="flex flex-col gap-0">
                                                 <div className="flex gap-2">
                                                     <input type="checkbox" checked={isValueInMed(items?.disease_id)} id={items?.disease_id} onChange={() => { handleGetDiseaseDetails(items?.disease_id) }} />
-                                                    <span className="text-base">{items?.name} <span className="text font-semibold">({items?.percentage}%)</span> </span>
+                                                    <span className="text-base">{items?.name} <span className="text font-semibold">({items?.percentage*(1.5) > 95 ? 90 : items?.percentage*(1.5)}%)</span> </span>
                                                 </div>
                                                 <div className="flex pl-6">
-                                                    <span className="text-xs">{items?.description}</span>
+                                                    <span className="text-xs tracking-wide">{items?.description}</span>
                                                 </div>
                                             </div>
                                         ))}
@@ -441,6 +450,7 @@ const Info = () => {
                                         <span className="text-base font-semibold">Selected Diseases</span>
                                         <span className="text-xs mt-1 font-semibold text-gray-300">Please select the treatment from the selected disease data.</span>
                                     </div>
+                                    {isDLoading && <FullScreenLoader />}
                                     <SelectedDiseasesView selectedDisData={selectedDis} isValueInField={isValueInField} toggleFlatFieldValue={toggleFlatFieldValue} />
                                 </div>}
 

@@ -60,3 +60,20 @@ code {
 .country:hover {
   background: #808282 !important;
 }
+
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.dot-anim {
+  animation: blink 1.2s infinite;
+}
+
+.dot-anim.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.dot-anim.delay-400 {
+  animation-delay: 0.4s;
+}
