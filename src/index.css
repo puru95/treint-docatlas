@@ -1,0 +1,62 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #10131f;
+  backdrop-filter: blur(15px);
+  color: white;
+  padding-top: 20px;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.p-paginator .p-highlight {
+  background-color: #007bff !important; /* Custom background color for selected page */
+  color: white !important; /* Custom text color */
+}
+
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.special-label,
+.form-control {
+  background: #1f222e !important;
+}
+.form-control {
+  padding: 14px 14px 14px 58px !important;
+  font-size: 14px !important;
+  border: none !important;
+}
+.special-label {
+  display: none !important;
+}
+
+.country-list {
+  background: #1f222e !important;
+}
+
+.country.highlight {
+  background: #808282 !important;
+}
+.dial-code {
+  color: #b8bebe !important;
+}
+.country:hover {
+  background: #808282 !important;
+}
