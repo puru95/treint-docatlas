@@ -48,6 +48,7 @@ const Info = () => {
     const [selectedTabInDocMarine, setSelectedTabInDocMarine] = useState<any>(mobile_tab ? mobile_tab : 'SYMPTOMS');
     const [isLoading, setIsLoading] = useState(false);
     const [isDLoading, setIsDLoading] = useState(false);
+    const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [subCategory, setSubCategory] = useState<any>('');
     const [dropdownOptions, setDropdownOptions] = useState<any>([]);
     const [searchInput, setSearchInput] = useState<string>();
@@ -144,7 +145,7 @@ const Info = () => {
             case "LAB":
                 return "Search eg. CBC"
             case "SYMPTOMS":
-                return "Search eg. Fever"
+                return "Search symptoms"
             case "MEDICAL_PROCEDURE":
                 return "Search eg. Surgery"
             case "MEDICINE":
@@ -195,6 +196,7 @@ const Info = () => {
         try {
             let data;
             setError('');
+            setIsSearchLoading(true);
             switch (selectedTabInDocMarine) {
                 case "MEDICINE":
                     data = await fetchMedicineList(searchValue);
@@ -220,6 +222,7 @@ const Info = () => {
             // setOptionAssciatedWithTab(selectedTabInDocMarine);
             setSearchInput(searchValue);
             setDropdownOptions(data);
+            setIsSearchLoading(false);
 
         } catch (error) {
             console.error(`Error fetching list :`, error);
@@ -347,17 +350,17 @@ const Info = () => {
 
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
-            
+
             <div className={`${selectedOptions ? "overflow-hidden" : ""} w-[1024px]  text-white px-2 pb-6 z-10 text-wrap`}>
                 <div className=" sticky top-0 z-20">
                     <div className="hidden md:block ">
-                        <div className="hidden md:flex md:justify-center lg:justify-between gap-3 md:flex-wrap mb-4 w-full">
+                        {/* <div className="hidden md:flex md:justify-center lg:justify-between gap-3 md:flex-wrap mb-4 w-full">
                             {TABS.map((tab, index) => (
                                 <div key={index} className={`${selectedTabInDocMarine === tab.id ? "bg-[#00A3FF] text-white" : "border border-white text-white"} whitespace-nowrap w-[150px] text-sm font-semibold text-center py-2 px-4 rounded-[5px] cursor-pointer `} onClick={() => { handleTabClick(tab?.id, null) }}>
                                     {tab.name}
                                 </div>
                             ))}
-                        </div>
+                        </div> */}
                     </div>
                     <div className="flex items-center gap-3 mr-3 md:mr-0 ">
                         <div className="md:hidden">
@@ -383,6 +386,7 @@ const Info = () => {
                                 searchIconColor="white" // color of the search icon
                                 setSearchInput={setSearchInput}
                                 searchInput={searchInput}
+                                isSearchLoading={isSearchLoading}
                             />
                             {selectedTabInDocMarine == 'SYMPTOMS' && <div className="flex flex-col gap-2">
                                 <div className="flex gap-2">
@@ -400,10 +404,11 @@ const Info = () => {
                                     <span>{error}</span>
                                 </div>
                                 <div className="flex gap-2 self-end">
-                                    <button type="button" className="px-4 py-2 bg-[#00A3FF] text-xs font-semibold text-white rounded-md hover:bg-blue-600" onClick={handleAiSearch}>
-                                        AI
+                                    <button type="button" className="flex gap-2 items-center px-4 py-2 bg-[#00A3FF] text-sm font-semibold text-white rounded-md hover:bg-blue-600" onClick={handleAiSearch}>
+                                        <svg width="14" height="15" viewBox="0 0 14 15" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="i8gzK v2EZs"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 0.714966C6.57172 0.714966 6.19841 1.00644 6.09453 1.42193C5.64458 3.22175 5.11525 4.31311 4.3567 5.07167C3.59815 5.83022 2.50678 6.35955 0.706966 6.8095C0.291477 6.91337 -3.32794e-07 7.28669 -3.32794e-07 7.71497C-3.32794e-07 8.14324 0.291477 8.51656 0.706966 8.62043C2.50678 9.07039 3.59815 9.59971 4.3567 10.3583C5.11525 11.1168 5.64458 12.2082 6.09453 14.008C6.19841 14.4235 6.57172 14.715 7 14.715C7.42828 14.715 7.80159 14.4235 7.90547 14.008C8.35542 12.2082 8.88475 11.1168 9.6433 10.3583C10.4019 9.59971 11.4932 9.07039 13.293 8.62043C13.7085 8.51656 14 8.14324 14 7.71497C14 7.28669 13.7085 6.91337 13.293 6.8095C11.4932 6.35955 10.4019 5.83022 9.6433 5.07167C8.88475 4.31311 8.35542 3.22175 7.90547 1.42193C7.80159 1.00644 7.42828 0.714966 7 0.714966Z"></path></svg>
+                                        <span>AI</span>
                                     </button>
-                                    <button type="button" className="px-4 py-2 bg-[#00A3FF] text-xs font-semibold text-white rounded-md hover:bg-blue-600" onClick={handleGetDiseases}>
+                                    <button type="button" className="px-4 py-2 bg-[#00A3FF] text-sm font-semibold text-white rounded-md hover:bg-blue-600" onClick={handleGetDiseases}>
                                         Search
                                     </button>
                                 </div>
@@ -435,7 +440,7 @@ const Info = () => {
                                             <div className="flex flex-col gap-0">
                                                 <div className="flex gap-2">
                                                     <input type="checkbox" checked={isValueInMed(items?.disease_id)} id={items?.disease_id} onChange={() => { handleGetDiseaseDetails(items?.disease_id) }} />
-                                                    <span className="text-base">{items?.name} <span className="text font-semibold">({items?.percentage*(1.5) > 95 ? 90 : items?.percentage*(1.5)}%)</span> </span>
+                                                    <span className="text-base">{items?.name} <span className="text font-semibold">({items?.percentage * (1.5) > 95 ? 90 : items?.percentage * (1.5)}%)</span> </span>
                                                 </div>
                                                 <div className="flex pl-6">
                                                     <span className="text-xs tracking-wide">{items?.description}</span>
@@ -485,6 +490,7 @@ const Info = () => {
                                     dangerouslySetInnerHTML={{ __html: formatTextToHTML(aiPlan) }}
                                 />
                             </div>}
+
                         </div>
                     }
                 </div>

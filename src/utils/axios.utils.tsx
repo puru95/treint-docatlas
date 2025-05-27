@@ -8,7 +8,7 @@ interface RequestOptions extends AxiosRequestConfig {
     calledFrom?: string;
 }
 // const client = axios.create({ baseURL: process.env.REACT_APP_API_URL });
-const client = axios.create({ baseURL: 'https://docatlas-production.up.railway.app/' });
+const client = axios.create({ baseURL: 'http://127.0.0.1:8000/' });
 
 
 

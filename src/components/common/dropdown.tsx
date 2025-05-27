@@ -16,6 +16,7 @@ interface InputSearchDropdownProps {
     searchIconColor?: string;
     setSearchInput: (val: any) => void;
     searchInput?: string;
+    isSearchLoading?: boolean
 }
 
 declare global {
@@ -38,7 +39,8 @@ const InputSearchDropdown: React.FC<InputSearchDropdownProps> = ({
     dropdownClassName = '',
     searchIconColor = '#10131F',
     setSearchInput,
-    searchInput
+    searchInput,
+    isSearchLoading
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -92,7 +94,8 @@ const InputSearchDropdown: React.FC<InputSearchDropdownProps> = ({
     return (
         <div ref={dropdownRef} className={`relative text-left ${disabled ? 'bg-gray-100' : ''} rounded-[10px] md:rounded-md md:border  flex ${className}`}>
 
-            <CiSearch className="self-center cursor-pointer mr-2" size={15} color={searchIconColor} onClick={focusInput} />
+            { isSearchLoading ? <img src="/bouncing-circles.svg" alt="loader" className='w-8 mr-2' /> : <CiSearch className="self-center w-8 cursor-pointer mr-2" size={15} color={searchIconColor} onClick={focusInput} />}
+            
             <input
                 onClick={toggleDropdown}
                 onChange={(e) => { onChange(e.target.value) }}

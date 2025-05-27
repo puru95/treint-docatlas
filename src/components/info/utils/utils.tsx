@@ -112,14 +112,15 @@ export const fetchMedicineList = async (searchInput: string, isFromMarketer?: bo
     try {
         const res = await getMedicineLists(data);
         const response = res?.data?.data;
-        if (setMedicineListTotalCount && response?.total_count) {
-            setMedicineListTotalCount(response.total_count);
-        }
+        // if (setMedicineListTotalCount && response?.total_count) {
+        //     setMedicineListTotalCount(response.total_count);
+        // }
 
         const upd = response?.search_response?.map((med: any) => {
             return ({
                 id: med?.id,
                 name: med?.name,
+                details: med,
             })
         });
         return upd;
