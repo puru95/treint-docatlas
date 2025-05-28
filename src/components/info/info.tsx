@@ -498,11 +498,11 @@ const Info = () => {
                             {type === 'NORMAL' && selectedTabInDocMarine == 'SYMPTOMS' && diseasesData.length > 0 && <div className="flex w-full border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
                                 <div className="flex flex-col w-full p-4 ">
                                     <div className={`flex ${selectedDis.length > 0 ? 'flex-col gap-4' : 'flex-row gap-2'} w-full `}>
-                                        <div className="flex flex-col w-2/3">
+                                        <div className="flex flex-col w-full">
                                             <span className="text-base font-semibold">Top Diseases</span>
                                             <span className="text-xs mt-1 font-semibold text-gray-300">Please select the diseases for further process.</span>
                                         </div>
-                                        <div className="flex w-1/2">
+                                        <div className="flex w-full">
                                             <InputSearchDropdown
                                                 items={dropdownDesOptions}
                                                 placeholder="Add Disease"
