@@ -8,7 +8,7 @@ import { ReactComponent as Diseases } from '../assets/diseases_image.svg';
 export const TABS = [
     {
         id: "SYMPTOMS",
-        name: "Treatment Plan"
+        name: "Clinic Protocol"
     },
     {
         id: "MEDICINE",
