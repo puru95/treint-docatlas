@@ -18,18 +18,18 @@ export const TABS = [
         id: 'SALT',
         name: 'Salts'
     },
-    {
-        id: "LAB",
-        name: "Lab Tests"
-    },
+    // {
+    //     id: "LAB",
+    //     name: "Lab Tests"
+    // },
     // {
     //     id: "RADIOLOGY",
     //     name: "Radiology"
     // },
-    {
-        id: "MEDICAL_PROCEDURE",
-        name: "Procedures"
-    },
+    // {
+    //     id: "MEDICAL_PROCEDURE",
+    //     name: "Procedures"
+    // },
     {
         id: "DISEASES",
         name: "Diseases"

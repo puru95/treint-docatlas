@@ -40,3 +40,24 @@ export interface selectedDis {
     procedures: string;
     lab_tests: string;
 }
+
+export interface MedicineDetails {
+    id: number;
+    name: string;
+    salt: string;
+    category: string;
+    uses: string;
+    typical_dosage: string;
+    disease_id: number | null;
+    introduction: string;
+    salt_introduction: string;
+    benefits: string;
+    side_effects: string;
+    substitutes: string;
+}
+
+export interface Medicine {
+    id: number;
+    name: string;
+    details: MedicineDetails;
+}

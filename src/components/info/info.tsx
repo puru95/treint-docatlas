@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
-import { LoaderIcon } from "react-hot-toast";
+import { Toast } from 'primereact/toast';
+import { useEffect, useRef, useState } from "react";
 import { IoChevronBack } from "react-icons/io5";
 import { RiHomeFill } from "react-icons/ri";
 import { useLocation, useNavigate } from "react-router-dom";
 import { debounce } from "../common/debounce";
 import InputSearchDropdown from "../common/dropdown";
-import { ROUTES, TABS } from "../constants";
-import { useUserState } from "../context/userProvider";
-import { fetchDiaseaseBySymptoms, fetchDiaseaseDetails, fetchDiseasesList, fetchLabList, fetchMedicalProcedureList, fetchMedicineList, fetchQuestionsBySymptoms, fetchSaltList, fetchSymptomList, submitDiagnosisData } from "./utils/utils";
-import items from "razorpay/dist/types/items";
-import SelectedDiseasesView from "./views/selected-diseases-view";
-import { selectedDis } from "./types/treatmentPlan";
-import TreatmentPlanView from "./views/treatment-plan-view";
-import MedicalQuestionnaire from "./views/medicalQuestionnaire";
-import DynamicProgressbar from "../common/progressBar";
 import FullScreenLoader from "../common/fullScreenLoader";
-import { loadavg } from "os";
-
+import { ROUTES, TABS } from "../constants";
+import { Medicine, MedicineDetails, selectedDis } from "./types/treatmentPlan";
+import { fetchDiaseaseBySymptoms, fetchDiaseaseDetails, fetchDiseasesList, fetchLabList, fetchMedicalProcedureList, fetchMedicineList, fetchQuestionsBySymptoms, fetchSaltList, fetchSymptomList, submitDiagnosisData } from "./utils/utils";
+import DiseasesDetails from "./views/diseases-details";
+import MedicalQuestionnaire from "./views/medicalQuestionnaire";
+import MedicinesDetails from "./views/medicines-details";
+import SaltsDetails from "./views/salts-details";
+import SelectedDiseasesView from "./views/selected-diseases-view";
+import TreatmentPlanView from "./views/treatment-plan-view";
+import TreatmentPlan from './views/treatment-plan';
 
 type Sym = { id: number; name: string };
 type Dis = { id: number; details: selectedDis };
@@ -51,17 +50,23 @@ const Info = () => {
     const [isSearchLoading, setIsSearchLoading] = useState(false);
     const [subCategory, setSubCategory] = useState<any>('');
     const [dropdownOptions, setDropdownOptions] = useState<any>([]);
+    const [dropdownDesOptions, setDropdownDesOptions] = useState<any>([]);
     const [searchInput, setSearchInput] = useState<string>();
+    const [searchDisInput, setSearchDisInput] = useState<string>();
     const navigate = useNavigate();
     const [medicineListTotalCount, setMedicineListTotalCount] = useState<any>();
     const [questionsData, setQuestionsData] = useState<Question[]>([]);
     const [diseasesData, setDiseasesData] = useState<any[]>([]);
     const [selectedSym, setSelectedSym] = useState<Sym[]>([]);
     const [selectedDis, setSelectedDis] = useState<Dis[]>([]);
+    const [selectedMed, setSelectedMed] = useState<MedicineDetails>();
+    const [selectedSalt, setSelectedSalt] = useState<MedicineDetails>();
+    const [diseaseDetails, setDiseaseDetails] = useState<Dis>();
     const [error, setError] = useState<string>('');
     const [threadId, setThreadId] = useState<string>('');
     const [type, setType] = useState<'NORMAL' | 'AI'>('NORMAL');
     const [aiPlan, setAiPlan] = useState<any>();
+    const toast = useRef<Toast | null>(null);
 
     const [treatmentPlan, setTreatmentPlan] = useState<TreatmentEntry>({
         symptoms: [],
@@ -106,14 +111,23 @@ const Info = () => {
                     );
                     break;
 
-                case "MEDICINES":
+                case "MEDICINE":
                     setIsLoading(true);
-                    // setSelectedSym((prev: any) => [...prev, val?.name]);
-                    // const medicalProcedureData = await fetchMedicalProcedureList(val?.id);
-                    // if (medicalProcedureData?.length > 0) {
-                    //     setSelectedTabInDocMarine('MEDICAL_PROCEDURE')
-                    //     setSelectedOptions(medicalProcedureData[0]);
-                    // }
+                    const selectedMedicine = dropdownOptions.find((med: Medicine) => med?.id === val?.id);
+                    setSelectedMed(selectedMedicine?.details);
+                    setIsLoading(false);
+                    break;
+                case "SALT":
+                    setIsLoading(true);
+                    const selectedSalt = dropdownOptions.find((med: Medicine) => med?.id === val?.id);
+                    setSelectedSalt(selectedSalt?.details);
+                    setIsLoading(false);
+                    break;
+                case "DISEASES":
+                    setIsLoading(true);
+                    const disData = await fetchDiaseaseDetails(val?.id);
+                    disData && setDiseaseDetails(disData?.details);
+                    setIsLoading(false);
                     break;
                 default:
                     break;
@@ -177,7 +191,7 @@ const Info = () => {
                 console.log('ooooppp');
                 break;
             case "SALT":
-                setSelectedOptions(selectedItem);
+                handleClick({ tab: 'SALT', id: selectedItem?.id });
                 break;
             case "LAB":
                 setSelectedOptions(rest);
@@ -283,7 +297,7 @@ const Info = () => {
 
         if (selectedSym.length > 0) {
             setIsLoading(true);
-            const symIds = selectedSym.map(sym => sym.id);
+            const symIds = selectedSym.map(sym => sym.name);
             const data = await fetchQuestionsBySymptoms(symIds);
 
             if (data?.ques_data) {
@@ -330,10 +344,12 @@ const Info = () => {
 
         setIsDLoading(true);
 
-        const data = {
-            thread_id: threadId,
-            answers: answers
-        }
+        // const data = {
+        //     thread_id: threadId,
+        //     answers: answers
+        // }
+
+        const data = {"thread_id":"thread_YChpC8NKkF2o9QOOREo6Rj60","answers":{"1":"A couple of days","2":"7-9 (Severe)","3":"Fatigue","4":"No","5":"Yes","6":"No","7":"Yes"}}
 
         const response = await submitDiagnosisData(data);
 
@@ -348,19 +364,67 @@ const Info = () => {
             .replace(/\n/g, '<br />'); // newlines
     };
 
+    const handleExport = (text: any) => {
+
+        if (toast.current) {
+            toast.current.show({
+                severity: 'success',
+                summary: 'Success',
+                detail: text,
+                life: 3000
+            });
+        }
+    };
+
+    const handleGetDiseasesData = debounce(async (searchValue: any) => {
+
+        if (!searchValue) {
+            setDropdownDesOptions([]);
+            return
+        }
+        try {
+            let data;
+            setError('');
+            setIsSearchLoading(true);
+
+            const dasda = await fetchDiseasesList(searchValue);
+
+            // setOptionAssciatedWithTab(selectedTabInDocMarine);
+            setSearchDisInput(searchValue);
+            setDropdownDesOptions(dasda);
+            setIsSearchLoading(false);
+
+        } catch (error) {
+            console.error(`Error fetching list :`, error);
+        }
+    }, 500)
+
+    const handleSelectedDesItem = (selectedItem: any) => {
+
+        const { id, ...rest } = selectedItem;
+        const res = {
+            disease_id: selectedItem?.id,
+            name: selectedItem?.name,
+            description: selectedItem?.description
+        }
+        setDiseasesData(prev => [...prev, res]);
+        setSearchDisInput('');
+    }
+
+    console.log({ aiPlan })
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
-
+            <Toast ref={toast} position="bottom-right" />
             <div className={`${selectedOptions ? "overflow-hidden" : ""} w-[1024px]  text-white px-2 pb-6 z-10 text-wrap`}>
                 <div className=" sticky top-0 z-20">
                     <div className="hidden md:block ">
-                        {/* <div className="hidden md:flex md:justify-center lg:justify-between gap-3 md:flex-wrap mb-4 w-full">
+                        <div className="hidden md:flex md:justify-center lg:justify-between gap-3 md:flex-wrap mb-4 w-full">
                             {TABS.map((tab, index) => (
-                                <div key={index} className={`${selectedTabInDocMarine === tab.id ? "bg-[#00A3FF] text-white" : "border border-white text-white"} whitespace-nowrap w-[150px] text-sm font-semibold text-center py-2 px-4 rounded-[5px] cursor-pointer `} onClick={() => { handleTabClick(tab?.id, null) }}>
+                                <div key={index} className={`${selectedTabInDocMarine === tab.id ? "bg-[#00A3FF] text-white" : "border border-white text-white"} whitespace-nowrap w-[230px] text-sm font-semibold text-center py-2 px-4 rounded-[5px] cursor-pointer `} onClick={() => { handleTabClick(tab?.id, null) }}>
                                     {tab.name}
                                 </div>
                             ))}
-                        </div> */}
+                        </div>
                     </div>
                     <div className="flex items-center gap-3 mr-3 md:mr-0 ">
                         <div className="md:hidden">
@@ -431,16 +495,39 @@ const Info = () => {
                             <FullScreenLoader />
                         </div> :
                         <div className="flex ">
-                            {type === 'NORMAL' && diseasesData.length > 0 && <div className="flex w-full border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
+                            {type === 'NORMAL' && selectedTabInDocMarine == 'SYMPTOMS' && diseasesData.length > 0 && <div className="flex w-full border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
                                 <div className="flex flex-col w-full p-4 ">
-                                    <span className="text-base font-semibold">Top Diseases</span>
-                                    <span className="text-xs mt-1 font-semibold text-gray-300">Please select the diseases for further process.</span>
-                                    <div className="flex flex-col mt-4 px-2 gap-4">
+                                    <div className={`flex ${selectedDis.length > 0 ? 'flex-col gap-4' : 'flex-row gap-2'} w-full `}>
+                                        <div className="flex flex-col w-2/3">
+                                            <span className="text-base font-semibold">Top Diseases</span>
+                                            <span className="text-xs mt-1 font-semibold text-gray-300">Please select the diseases for further process.</span>
+                                        </div>
+                                        <div className="flex w-1/2">
+                                            <InputSearchDropdown
+                                                items={dropdownDesOptions}
+                                                placeholder="Add Disease"
+                                                onChange={(value) => handleGetDiseasesData(value)}
+                                                onSelect={(selectedItem) => handleSelectedDesItem(selectedItem)}
+                                                subName="name" // or whatever property you want to display from the items
+                                                disabled={false} // or true if you want to disable the input
+                                                className={` text-white text-base md:text-sm font-semibold bg-[#1F222E] md:bg-[#10131f]  px-2  w-full`} // custom styles for the wrapper
+                                                inputClassName="bg-[#1F222E] md:bg-[#10131f] h-[45px] " // custom styles for the input
+                                                dropdownClassName="bg-gray-800 text-white" // custom styles for the dropdown
+                                                searchIconColor="white" // color of the search icon
+                                                setSearchInput={setSearchDisInput}
+                                                searchInput={searchDisInput}
+                                                isSearchLoading={isSearchLoading}
+                                            />
+                                        </div>
+
+                                    </div>
+
+                                    <div className="flex flex-col mt-4 px-2 gap-4 overflow-auto">
                                         {diseasesData.map((items, index) => (
                                             <div className="flex flex-col gap-0">
                                                 <div className="flex gap-2">
                                                     <input type="checkbox" checked={isValueInMed(items?.disease_id)} id={items?.disease_id} onChange={() => { handleGetDiseaseDetails(items?.disease_id) }} />
-                                                    <span className="text-base">{items?.name} <span className="text font-semibold">({items?.percentage * (1.5) > 95 ? 90 : items?.percentage * (1.5)}%)</span> </span>
+                                                    <span className="text-base">{items?.name} <span className="text font-semibold"> {items?.percentage && <span>({items?.percentage * (1.5) > 95 ? 90 : items?.percentage * (1.5)}%)</span>} </span> </span>
                                                 </div>
                                                 <div className="flex pl-6">
                                                     <span className="text-xs tracking-wide">{items?.description}</span>
@@ -466,7 +553,7 @@ const Info = () => {
                                             <span className="text-xs mt-1 font-semibold text-gray-300">Your final Treatment plan.</span>
                                         </div>
                                         <div className="flex">
-                                            <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600">Export</button>
+                                            <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600" onClick={() => { handleExport('Treatment Plan data has been exported') }}>Export</button>
                                         </div>
                                     </div>
 
@@ -474,21 +561,42 @@ const Info = () => {
                                 </div>}
                             </div>}
 
-                            {type === 'AI' && !aiPlan && questionsData.length > 0 && <div className="flex mt-4 w-full">
+                            {type === 'AI' && selectedTabInDocMarine == 'SYMPTOMS' && !aiPlan && questionsData.length > 0 && <div className="flex mt-4 w-full">
+                                {isDLoading && <FullScreenLoader />}
                                 <MedicalQuestionnaire data={questionsData} handleSubmitAnswers={handleSubmitAnswers} />
                             </div>}
 
-                            {type === 'AI' && aiPlan && <div className="flex flex-col w-full mt-4 rounded-md p-4 border border-gray-400">
+                            {type == 'AI' && aiPlan && <div className="flex flex-col w-full mt-4 rounded-md p-4 border border-gray-400">
                                 {/* {aiPlan} */}
                                 <div className="flex justify-between">
                                     <span className="text-xl font-semibold mb-4 underline underline-offset-4">Treatment Plan</span>
-                                    <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600">Export</button>
+                                    <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600" onClick={() => { handleExport('Treatment Plan data has been exported') }}>Export</button>
                                 </div>
 
-                                <div
+                                <div className="flex w-full overflow-auto max-h-[55vh]">
+                                    <TreatmentPlan data={aiPlan} />
+                                </div>
+
+                                {/* <div
                                     className="prose max-w-none overflow-auto h-[45vh]"
                                     dangerouslySetInnerHTML={{ __html: formatTextToHTML(aiPlan) }}
-                                />
+                                /> */}
+                            </div>}
+
+                            {selectedTabInDocMarine == 'MEDICINE' && <div className="flex mt-8 w-full">
+                                {selectedMed &&
+                                    <MedicinesDetails data={selectedMed} />
+                                }
+                            </div>}
+                            {selectedTabInDocMarine == 'SALT' && <div className="flex mt-8 w-full">
+                                {selectedSalt &&
+                                    <SaltsDetails data={selectedSalt} />
+                                }
+                            </div>}
+                            {selectedTabInDocMarine == 'DISEASES' && <div className="flex mt-8 w-full">
+                                {diseaseDetails &&
+                                    <DiseasesDetails data={diseaseDetails} />
+                                }
                             </div>}
 
                         </div>

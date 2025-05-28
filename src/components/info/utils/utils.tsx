@@ -101,20 +101,13 @@ export const fetchMedicalProcedureList = async (searchInput: string) => {
 
 
 export const fetchMedicineList = async (searchInput: string, isFromMarketer?: boolean, setMedicineListTotalCount?: any, pagination?: any) => {
-    const data = !isFromMarketer ? {
+    const data = {
         search_text: searchInput,
-        pagination: pagination
-
-    } : {
-        marketer_name: searchInput,
         pagination: pagination
     }
     try {
         const res = await getMedicineLists(data);
         const response = res?.data?.data;
-        // if (setMedicineListTotalCount && response?.total_count) {
-        //     setMedicineListTotalCount(response.total_count);
-        // }
 
         const upd = response?.search_response?.map((med: any) => {
             return ({
@@ -216,7 +209,7 @@ export const fetchQuestionsBySymptoms = async (symptoms?: any, pagination?: any)
 }
 
 export const submitDiagnosisData = async (data: any) => {
-    
+
     try {
         const res = await submitDiagnosisAnswers(data);
         const response = res?.data?.data;
@@ -256,17 +249,17 @@ export const fetchDiaseaseDetails = async (disease_id?: number, pagination?: any
 
 export const fetchSaltList = async (searchInput: string) => {
     const data = {
-        search_text: searchInput
+        search_text: searchInput,
     }
     try {
         const res = await getSaltLists(data);
-        const response = res?.data?.search_response
+        const response = res?.data?.data;
 
-        const upd = response.map((med: any) => {
+        const upd = response?.search_response?.map((med: any) => {
             return ({
-                ...med,
                 id: med?.id,
-                name: med?.salt_name,
+                name: med?.name,
+                details: med,
             })
         });
         return upd;
@@ -315,13 +308,13 @@ export const fetchDiseasesList = async (searchInput: string) => {
     }
     try {
         const res = await getDiseasesLists(data);
-        const response = res?.data?.search_response
+        const response = res?.data?.data;
 
-        const upd = response.map((med: any) => {
+        const upd = response?.search_response?.map((med: any) => {
             return ({
-                ...med,
-                id: med?.id,
+                id: med?.disease_id,
                 name: med?.disease_name,
+                details: med,
             })
         });
         return upd;

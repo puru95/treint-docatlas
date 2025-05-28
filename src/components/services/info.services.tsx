@@ -11,7 +11,7 @@ export function getSelectedSaltData(data: any) {
 
 export function getSaltLists(data: any) {
     return request({
-        url: URL_PREFFIX + "mediassist/mini/salts/search",
+        url: URL_PREFFIX + "salts/search",
         method: "post",
         data: JSON.stringify(data),
     });
@@ -35,7 +35,7 @@ export function getSubstituesData(data: any) {
 
 export function getDiseasesLists(data: any) {
     return request({
-        url: URL_PREFFIX + "mediassist/mini/diseases/search",
+        url: URL_PREFFIX + "diseases/search",
         method: "post",
         data: JSON.stringify(data),
     });
