@@ -53,7 +53,7 @@ const MedicalQuestionnaire: React.FC<Props> = ({ data, handleSubmitAnswers }) =>
       // axios.post('/api/save-answers', { thread_id: data.thread_id, answers });
     }
   };
-  console.log({ answers })
+ 
   return (
     <div className="w-full mx-auto p-6 shadow-lg min-h-[55vh] rounded-lg border border-gray-400">
       <h2 className="text-xl font-bold mb-2">

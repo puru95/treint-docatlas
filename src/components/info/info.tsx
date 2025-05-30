@@ -186,9 +186,7 @@ const Info = () => {
             case "SYMPTOMS":
                 handleClick({ tab: 'SYMPTOMS', id: selectedItem?.id, name: selectedItem?.name });
                 setDropdownOptions([]);
-                console.log(searchInput);
                 setSearchInput('');
-                console.log('ooooppp');
                 break;
             case "SALT":
                 handleClick({ tab: 'SALT', id: selectedItem?.id });
@@ -344,12 +342,12 @@ const Info = () => {
 
         setIsDLoading(true);
 
-        // const data = {
-        //     thread_id: threadId,
-        //     answers: answers
-        // }
+        const data = {
+            thread_id: threadId,
+            answers: answers
+        }
 
-        const data = {"thread_id":"thread_YChpC8NKkF2o9QOOREo6Rj60","answers":{"1":"A couple of days","2":"7-9 (Severe)","3":"Fatigue","4":"No","5":"Yes","6":"No","7":"Yes"}}
+        // const data = {"thread_id":threadId,"answers":{"1":"A couple of days","2":"7-9 (Severe)","3":"Fatigue","4":"No","5":"Yes","6":"No","7":"Yes"}}
 
         const response = await submitDiagnosisData(data);
 
@@ -411,7 +409,6 @@ const Info = () => {
         setSearchDisInput('');
     }
 
-    console.log({ aiPlan })
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
             <Toast ref={toast} position="bottom-right" />
@@ -527,7 +524,7 @@ const Info = () => {
                                             <div className="flex flex-col gap-0">
                                                 <div className="flex gap-2">
                                                     <input type="checkbox" checked={isValueInMed(items?.disease_id)} id={items?.disease_id} onChange={() => { handleGetDiseaseDetails(items?.disease_id) }} />
-                                                    <span className="text-base">{items?.name} <span className="text font-semibold"> {items?.percentage && <span>({items?.percentage * (1.5) > 95 ? 90 : items?.percentage * (1.5)}%)</span>} </span> </span>
+                                                    <span className="text-base">{items?.name} <span className="text font-semibold"> {items?.percentage && <span> - {items?.percentage * (1.5) > 95 ? 90 : items?.percentage * (1.5)}% Match</span>} </span> </span>
                                                 </div>
                                                 <div className="flex pl-6">
                                                     <span className="text-xs tracking-wide">{items?.description}</span>
@@ -566,22 +563,11 @@ const Info = () => {
                                 <MedicalQuestionnaire data={questionsData} handleSubmitAnswers={handleSubmitAnswers} />
                             </div>}
 
-                            {type == 'AI' && aiPlan && <div className="flex flex-col w-full mt-4 rounded-md p-4 border border-gray-400">
-                                {/* {aiPlan} */}
-                                <div className="flex justify-between">
-                                    <span className="text-xl font-semibold mb-4 underline underline-offset-4">Treatment Plan</span>
-                                    <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600" onClick={() => { handleExport('Treatment Plan data has been exported') }}>Export</button>
+                            {type == 'AI' && aiPlan &&
+                                <div className="flex w-full overflow-auto max-h-[55vh] mt-6">
+                                    <TreatmentPlan data={aiPlan} handleExport={handleExport} />
                                 </div>
-
-                                <div className="flex w-full overflow-auto max-h-[55vh]">
-                                    <TreatmentPlan data={aiPlan} />
-                                </div>
-
-                                {/* <div
-                                    className="prose max-w-none overflow-auto h-[45vh]"
-                                    dangerouslySetInnerHTML={{ __html: formatTextToHTML(aiPlan) }}
-                                /> */}
-                            </div>}
+                            }
 
                             {selectedTabInDocMarine == 'MEDICINE' && <div className="flex mt-8 w-full">
                                 {selectedMed &&
