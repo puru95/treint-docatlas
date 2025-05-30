@@ -563,7 +563,7 @@ const Info = () => {
                                 <MedicalQuestionnaire data={questionsData} handleSubmitAnswers={handleSubmitAnswers} />
                             </div>}
 
-                            {type == 'AI' && aiPlan &&
+                            {type == 'AI' && aiPlan && selectedTabInDocMarine == 'SYMPTOMS' &&
                                 <div className="flex w-full overflow-auto max-h-[55vh] mt-6">
                                     <TreatmentPlan data={aiPlan} handleExport={handleExport} />
                                 </div>
