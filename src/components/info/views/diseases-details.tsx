@@ -62,7 +62,7 @@ console.log({data})
                     {(value?.id === 'Common Symptoms' || value?.id === 'Recommended Lab Tests' || value?.id === 'Recommended Procedures' || value?.id === 'Recommended Medicines' || value?.id === 'Advice') ? <div className="flex flex-col w-full gap-1 divide-y divide-gray-400">
                         <span className='text-lg font-semibold '>{value?.id}</span>
                         <ul className='list-disc pl-4 text-sm pt-2 text-gray-300'>
-                            {value?.value.split(',').filter((item: any) => item !== '').map((item: any, index: number) => (
+                            {value?.value.split(',').filter((item: any) => item !== '').filter((item: any) => item !== "'").map((item: any, index: number) => (
                                 <li key={index} className='capitalize tracking-wider'>{item.trim()}</li>
                             ))}
                         </ul>
