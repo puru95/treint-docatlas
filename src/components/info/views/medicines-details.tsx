@@ -49,7 +49,7 @@ const MedicinesDetails: React.FC<MedicinesDetailsProps> = ({ data }) => {
     ]
 
     return (
-        <div className='flex flex-col gap-4 w-full rounded-md p-4 border border-gray-500 bg-[#1F222E]'>
+        <div className='flex flex-col gap-4 w-full rounded-md max-h-[62vh] overflow-auto p-4 border border-gray-500 bg-[#1F222E]'>
             
             <div className="flex justify-between">
                 <div className="flex flex-col gap-0.5">

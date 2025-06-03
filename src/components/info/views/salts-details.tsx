@@ -49,7 +49,7 @@ const SaltsDetails: React.FC<SaltsDetailsProps> = ({ data }) => {
     ]
 
     return (
-        <div className='flex flex-col gap-4 w-full rounded-md p-4 border border-gray-500 bg-[#1F222E]'>
+        <div className='flex flex-col gap-4 w-full rounded-md p-4 max-h-[62vh] overflow-auto border border-gray-500 bg-[#1F222E]'>
             
             <div className="flex justify-between">
                 <div className="flex flex-col gap-0.5">
@@ -68,7 +68,7 @@ const SaltsDetails: React.FC<SaltsDetailsProps> = ({ data }) => {
                     {(value?.id === 'Benefits' || value?.id === 'Side Effects') ? <div className="flex flex-col w-full gap-1 divide-y divide-gray-400">
                         <span className='text-lg font-semibold '>{value?.id}</span>
                         <ul className='list-disc pl-4 text-sm pt-2 text-gray-300'>
-                            {value?.value.split('-').filter((item: any) => item !== '').map((item: any, index: number) => (
+                            {value?.value.split('-').filter((item: any) => item !== '').filter((item: any) => item !== "'").map((item: any, index: number) => (
                                 <li key={index} className='capitalize tracking-wider'>{item.trim()}</li>
                             ))}
                         </ul>

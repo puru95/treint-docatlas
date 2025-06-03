@@ -65,6 +65,7 @@ const Info = () => {
     const [error, setError] = useState<string>('');
     const [threadId, setThreadId] = useState<string>('');
     const [type, setType] = useState<'NORMAL' | 'AI'>('NORMAL');
+    const [currentDetailTab, setCurrentDetailTab] = useState<'symptoms' | 'lab_tests' | 'procedures' | 'medicines' | 'salts' | 'advice' | 'follow_up' | null>(null);
     const [aiPlan, setAiPlan] = useState<any>();
     const toast = useRef<Toast | null>(null);
 
@@ -409,6 +410,42 @@ const Info = () => {
         setSearchDisInput('');
     }
 
+    const handleGetDeatils = async (tab: 'SYMPTOMS' | 'MEDICINE' | 'SALT' | 'DISEASES', searchVal: string, id: number) => {
+
+        setSelectedTabInDocMarine(tab);
+        setSearchInput(searchVal);
+        switch (tab) {
+            case "MEDICINE":
+                setIsLoading(true);
+                const medData = await fetchMedicineList(searchVal);
+                if (medData[0]) {
+                    const selectedSalt = medData[0];
+                    setSelectedMed(selectedSalt?.details);
+                }
+                setIsLoading(false);
+                break;
+            case "SALT":
+                setIsLoading(true);
+                const saltData = await fetchSaltList(searchVal);
+                if (saltData[0]) {
+                    const selectedSalt = saltData[0];
+                    setSelectedSalt(selectedSalt?.details);
+                }
+
+                setIsLoading(false);
+                break;
+            case "DISEASES":
+                setIsLoading(true);
+                const disData = await fetchDiaseaseDetails(id);
+                disData && setDiseaseDetails(disData?.details);
+                setIsLoading(false);
+                break;
+            default:
+                break;
+        }
+
+    }
+
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
             <Toast ref={toast} position="bottom-right" />
@@ -540,7 +577,7 @@ const Info = () => {
                                         <span className="text-xs mt-1 font-semibold text-gray-300">Please select the treatment from the selected disease data.</span>
                                     </div>
                                     {isDLoading && <FullScreenLoader />}
-                                    <SelectedDiseasesView selectedDisData={selectedDis} isValueInField={isValueInField} toggleFlatFieldValue={toggleFlatFieldValue} />
+                                    <SelectedDiseasesView selectedDisData={selectedDis} isValueInField={isValueInField} toggleFlatFieldValue={toggleFlatFieldValue} handleGetDeatils={handleGetDeatils} />
                                 </div>}
 
                                 {hasAnyPlan && <div className="flex flex-col w-full p-4 border-l border-gray-500">

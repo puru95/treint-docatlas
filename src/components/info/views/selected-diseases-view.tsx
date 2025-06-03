@@ -4,6 +4,7 @@ import { Button } from 'primereact/button';
 import '../../../App.css';
 import CustomAccordion from '../../common/accordion';
 import { TreatmentEntry, selectedDis } from '../types/treatmentPlan';
+import { Tooltip } from 'primereact/tooltip';
 
 interface items {
     id: number;
@@ -18,12 +19,12 @@ interface items {
 export interface SelectedDiseasesViewProps {
     // Define the props for the RadiologyView component here
     selectedDisData: items[];
-    isValueInField: (feild: 'symptoms' | 'lab_tests' | 'procedures' | 'medicines' | 'salts' | 'advice' | 'follow_up' ,val: string) => boolean;
+    isValueInField: (feild: 'symptoms' | 'lab_tests' | 'procedures' | 'medicines' | 'salts' | 'advice' | 'follow_up', val: string) => boolean;
     toggleFlatFieldValue: (field: 'symptoms' | 'lab_tests' | 'procedures' | 'medicines' | 'salts' | 'advice' | 'follow_up', value: string) => void;
-
+    handleGetDeatils: (tab: 'SYMPTOMS' | 'MEDICINE' | 'SALT' | 'DISEASES', searchVal: string, id: number) => void;
 }
 
-const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDisData, isValueInField, toggleFlatFieldValue }) => {
+const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDisData, isValueInField, toggleFlatFieldValue, handleGetDeatils }) => {
 
     const handleTreatment = (disease_id: number, field: 'symptoms' | 'lab_tests' | 'procedures' | 'medicines' | 'salts' | 'advice' | 'follow_up', value: string) => {
 
@@ -42,7 +43,10 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                         title: items?.details?.dName,
                         children: <div className="flex flex-col gap-4 w-full max-h-80 overflow-auto">
                             <div className="flex flex-col gap-1">
-                                <span className='text-sm font-semibold'>{items?.details?.dName}</span>
+                                <div className="flex gap-2">
+                                    <span className='text-sm font-semibold'>{items?.details?.dName}</span>
+                                    <Button tooltip="Get Details" onClick={()=>{handleGetDeatils('DISEASES', items?.details?.dName, items?.details?.id)}}><i className="pi pi-info-circle abccc cursor-pointer text-xs" style={{ fontSize: '0.9rem', color: '#00A3FF' }}></i></Button>
+                                </div>
                                 <span className='text-xs font-semibold'>Category: {items?.details?.category}</span>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -52,7 +56,7 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Symptoms of {items?.details?.dName}</span>
                                 <ul className='list-disc pl-4 text-sm'>
-                                    {items?.details?.symptoms.split(',').map((item, index) => (
+                                    {items?.details?.symptoms.split(',').filter(item => item !== '').map((item, index) => (
                                         <li key={index} className='capitalize tracking-wider'>{item.trim()}</li>
                                     ))}
                                 </ul>
@@ -60,7 +64,7 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Recommended Lab Tests</span>
                                 <div className="flex flex-col gap-1">
-                                    {items?.details?.lab_tests.split(',').map((item, index) => (
+                                    {items?.details?.lab_tests.split(',').filter(item => item !== '').map((item, index) => (
                                         <div key={index} className="flex gap-2">
                                             <input type="checkbox" checked={isValueInField('lab_tests', item.trim())} onChange={() => { handleTreatment(items?.id, 'lab_tests', item.trim()) }} />
                                             <span className="text-sm tracking-wider">{item.trim()}</span>
@@ -71,7 +75,7 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Recommended Procedures</span>
                                 <div className="flex flex-col gap-1">
-                                    {items?.details?.procedures.split(',').map((item, index) => (
+                                    {items?.details?.procedures.split(',').filter(item => item !== '').map((item, index) => (
                                         <div key={index} className="flex gap-2">
                                             <input type="checkbox" checked={isValueInField('procedures', item.trim())} onChange={() => { handleTreatment(items?.id, 'procedures', item.trim()) }} />
                                             <span className="text-sm tracking-wider">{item.trim()}</span>
@@ -82,10 +86,11 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Recommended Medicines</span>
                                 <div className="flex flex-col gap-1">
-                                    {items?.details?.medicines.split(',').map((item, index) => (
-                                        <div key={index} className="flex gap-2">
+                                    {items?.details?.medicines.split(',').filter(item => item !== '').map((item, index) => (
+                                        <div key={index} className="flex items-center gap-2">
                                             <input type="checkbox" checked={isValueInField('medicines', item.trim())} onChange={() => { handleTreatment(items?.id, 'medicines', item.trim()) }} />
                                             <span className="text-sm tracking-wider">{item.trim()}</span>
+                                            <Button tooltip="Get Details" onClick={()=>{handleGetDeatils('MEDICINE', item.trim(), items?.id)}}><i className="pi pi-info-circle abccc cursor-pointer" style={{ fontSize: '0.9rem', color: '#00A3FF' }}></i></Button>
                                         </div>
                                     ))}
                                 </div>
@@ -93,10 +98,11 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Recommended Salts</span>
                                 <div className="flex flex-col gap-1">
-                                    {items?.details?.salts.split(',').map((item, index) => (
+                                    {items?.details?.salts.split(',').filter(item => item !== '').map((item, index) => (
                                         <div key={index} className="flex gap-2">
                                             <input type="checkbox" checked={isValueInField('salts', item.trim())} onChange={() => { handleTreatment(items?.id, 'salts', item.trim()) }} />
                                             <span className="text-sm tracking-wider">{item.trim()}</span>
+                                            <Button tooltip="Get Details" onClick={()=>{handleGetDeatils('SALT', item.trim(), items?.id)}}><i className="pi pi-info-circle abccc cursor-pointer" style={{ fontSize: '0.9rem', color: '#00A3FF' }}></i></Button>
                                         </div>
                                     ))}
                                 </div>
@@ -104,7 +110,7 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Advice</span>
                                 <div className="flex flex-col gap-1">
-                                    {items?.details?.advice.split(',').map((item, index) => (
+                                    {items?.details?.advice.split(',').filter(item => item !== '').map((item, index) => (
                                         <div key={index} className="flex gap-2">
                                             <input type="checkbox" checked={isValueInField('advice', item.trim())} onChange={() => { handleTreatment(items?.id, 'advice', item.trim()) }} />
                                             <span className="text-sm tracking-wider">{item.trim()}</span>
@@ -115,7 +121,7 @@ const SelectedDiseasesView: React.FC<SelectedDiseasesViewProps> = ({ selectedDis
                             <div className="flex flex-col gap-2">
                                 <span className='text-sm font-semibold underline underline-offset-4'>Follow UP</span>
                                 <div className="flex flex-col gap-1">
-                                    {items?.details?.follow_up.split(',').map((item, index) => (
+                                    {items?.details?.follow_up.split(',').filter(item => item !== '').map((item, index) => (
                                         <div key={index} className="flex gap-2">
                                             <input type="checkbox" checked={isValueInField('follow_up', item.trim())} onChange={() => { handleTreatment(items?.id, 'follow_up', item.trim()) }} />
                                             <span className="text-sm tracking-wider">{item.trim()}</span>
