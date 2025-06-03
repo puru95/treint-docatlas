@@ -404,8 +404,9 @@ const Info = () => {
         const res = {
             disease_id: selectedItem?.id,
             name: selectedItem?.name,
-            description: selectedItem?.description
+            description: selectedItem?.description ? selectedItem?.description : selectedItem?.details?.description
         }
+       
         setDiseasesData(prev => [...prev, res]);
         setSearchDisInput('');
     }
