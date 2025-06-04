@@ -636,7 +636,7 @@ const Info = () => {
 
                             {type == 'AI' && aiPlan && selectedTabInDocMarine == 'SYMPTOMS' &&
                                 <div className="flex w-full overflow-auto max-h-[55vh] mt-6">
-                                    <TreatmentPlan data={aiPlan} handleExport={handleExport} />
+                                    <TreatmentPlan data={aiPlan} handleExport={handleExport} symptoms={selectedSym} />
                                 </div>
                             }
 

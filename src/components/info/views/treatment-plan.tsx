@@ -5,15 +5,17 @@ import '../../../App.css';
 import CustomAccordion from '../../common/accordion';
 import { MedicineDetails, TreatmentEntry, selectedDis } from '../types/treatmentPlan';
 import TreatmentPlanView from './treatment-plan-view';
+import { Dialog } from 'primereact/dialog';
 
 
 export interface TreatmentPlanProps {
 
-    data: any
+    data: any;
+    symptoms?: { id: number; name: string }[];
     handleExport: (val: string) => void;
 }
 
-const TreatmentPlan: React.FC<TreatmentPlanProps> = ({ data, handleExport }) => {
+const TreatmentPlan: React.FC<TreatmentPlanProps> = ({ data, symptoms, handleExport }) => {
 
     const updatedData = data.map((item: any) => ({
         ...item,
@@ -21,6 +23,8 @@ const TreatmentPlan: React.FC<TreatmentPlanProps> = ({ data, handleExport }) => 
     }));
 
     const [planData, setPlanData] = useState(updatedData);
+
+    const [visible, setVisible] = useState(false);
 
     const [treatmentPlan, setTreatmentPlan] = useState<TreatmentEntry>({
         symptoms: [],
@@ -139,7 +143,7 @@ const TreatmentPlan: React.FC<TreatmentPlanProps> = ({ data, handleExport }) => 
                                                 <div className="flex flex-col gap-1 pt-2 text-gray-300">
                                                     {item?.key_symptoms.map((val: any, index: number) => (
                                                         <div key={index} className="flex gap-2">
-                                                            <input type="checkbox" checked={isValueInField('symptoms', val.trim())} onChange={() => { handleTreatment(val, 'symptoms', val.trim()) }} />
+                                                            {/* <input type="checkbox" checked={isValueInField('symptoms', val.trim())} onChange={() => { handleTreatment(val, 'symptoms', val.trim()) }} /> */}
                                                             <span className="text-sm tracking-wider">{val.trim()}</span>
                                                         </div>
                                                     ))}
@@ -233,15 +237,101 @@ const TreatmentPlan: React.FC<TreatmentPlanProps> = ({ data, handleExport }) => 
                             <span className="text-base font-semibold">Treatment Plan</span>
                             <span className="text-xs mt-1 font-semibold text-gray-300">Your final Treatment plan.</span>
                         </div>
-                        <div className="flex">
+                        <div className="flex flex-col gap-1">
+                            <Button label="View" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-blue-600" onClick={() => setVisible(true)} />
                             <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600" onClick={() => { handleExport('Treatment Plan data has been exported') }}>Export</button>
                         </div>
                     </div>
-                    <TreatmentPlanView treatmentPlan={treatmentPlan} />
+                    <TreatmentPlanView treatmentPlan={treatmentPlan} symptoms={symptoms} />
                 </div>}
             </div>
 
+            <Dialog header="Treatment Plan" visible={visible} style={{ width: '60vw' }} onHide={() => { if (!visible) return; setVisible(false); }}>
+                <div className="p-6 rounded-2xl shadow-xl bg-white border border-gray-200 space-y-6">
+                    <h2 className="text-2xl font-bold text-blue-900">Diagnosis Overview</h2>
 
+                    <div className="space-y-6">
+                        {planData.filter((item: any) => item.isChecked == true).map((item: any, i: number) => (
+                            <div key={i} className="flex flex-col gap-1 border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded-lg">
+                                <h3 className="text-lg font-semibold text-blue-900">{item?.name}</h3>
+                                <p className="text-sm text-gray-700"><span className="font-medium underline underline-offset-2">Category:</span> {item?.category}</p>
+                                <p className="text-sm text-gray-700">
+                                    <span className="font-medium underline underline-offset-2">Common Symptoms of {item?.name}:</span> {item?.symptoms}
+                                </p>
+                                <p className="text-sm text-gray-700"><span className="font-medium underline underline-offset-2">Description:</span> {item?.description}</p>
+
+                            </div>
+                        ))}
+                    </div>
+
+                    {symptoms && symptoms.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Patient-Reported Symptoms</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {symptoms?.map((item, i) => (
+                                    <li key={i}>{item?.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.procedures.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Procedures</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.procedures.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.medicines.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Medicines</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.medicines.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.salts.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Salts</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.salts.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.lab_tests.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Lab Tests</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.lab_tests.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.follow_up.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Follow-Up Recommendations</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.follow_up.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+
+            </Dialog >
 
         </div>
 
