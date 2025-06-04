@@ -16,6 +16,8 @@ import SaltsDetails from "./views/salts-details";
 import SelectedDiseasesView from "./views/selected-diseases-view";
 import TreatmentPlanView from "./views/treatment-plan-view";
 import TreatmentPlan from './views/treatment-plan';
+import { Dialog } from 'primereact/dialog';
+import { Button } from 'primereact/button';
 
 type Sym = { id: number; name: string };
 type Dis = { id: number; details: selectedDis };
@@ -168,7 +170,7 @@ const Info = () => {
             case "SALT":
                 return "Search eg. Paracetamol"
             case "DISEASES":
-                return "Search eg. Cataract"
+                return "Search eg. Asthma"
             default:
                 return "Search here"
         }
@@ -406,7 +408,7 @@ const Info = () => {
             name: selectedItem?.name,
             description: selectedItem?.description ? selectedItem?.description : selectedItem?.details?.description
         }
-       
+
         setDiseasesData(prev => [...prev, res]);
         setSearchDisInput('');
     }
@@ -414,7 +416,7 @@ const Info = () => {
     const handleGetDeatils = async (tab: 'SYMPTOMS' | 'MEDICINE' | 'SALT' | 'DISEASES', searchVal: string, id: number) => {
 
         setSelectedTabInDocMarine(tab);
-        setSearchInput(searchVal);
+        setSearchInput('');
         switch (tab) {
             case "MEDICINE":
                 setIsLoading(true);
@@ -444,13 +446,20 @@ const Info = () => {
             default:
                 break;
         }
+        setDropdownOptions([]);
+        setDropdownDesOptions([]);
 
     }
+
+    const [visible, setVisible] = useState(false);
+    console.log({ selectedDis })
+    console.log({ treatmentPlan })
+
 
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
             <Toast ref={toast} position="bottom-right" />
-            <div className={`${selectedOptions ? "overflow-hidden" : ""} w-[1024px]  text-white px-2 pb-6 z-10 text-wrap`}>
+            <div className={`${selectedOptions ? "overflow-hidden" : ""} w-[1024px] text-white px-2 pb-6 z-10 text-wrap`}>
                 <div className=" sticky top-0 z-20">
                     <div className="hidden md:block ">
                         <div className="hidden md:flex md:justify-center lg:justify-between gap-3 md:flex-wrap mb-4 w-full">
@@ -530,12 +539,12 @@ const Info = () => {
                             <FullScreenLoader />
                         </div> :
                         <div className="flex ">
-                            {type === 'NORMAL' && selectedTabInDocMarine == 'SYMPTOMS' && diseasesData.length > 0 && <div className="flex w-full border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
+                            {type === 'NORMAL' && selectedTabInDocMarine == 'SYMPTOMS' && diseasesData.length > 0 && <div className="flex w-full z-50 relative bg-[#1F222E] border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
                                 <div className="flex flex-col w-full p-4 ">
                                     <div className={`flex ${selectedDis.length > 0 ? 'flex-col gap-4' : 'flex-row gap-2'} w-full `}>
                                         <div className="flex flex-col w-full">
                                             <span className="text-base font-semibold">Top Diseases</span>
-                                            <span className="text-xs mt-1 font-semibold text-gray-300">Please select the diseases for further process.</span>
+                                            <span className="text-xs mt-1 font-semibold text-gray-300">Select the diseases for further process.</span>
                                         </div>
                                         <div className="flex w-full">
                                             <InputSearchDropdown
@@ -557,7 +566,7 @@ const Info = () => {
 
                                     </div>
 
-                                    <div className="flex flex-col mt-4 px-2 gap-4 overflow-auto">
+                                    <div className="flex flex-col mt-4 px-2 gap-4 max-h-[50vh] overflow-auto">
                                         {diseasesData.map((items, index) => (
                                             <div className="flex flex-col gap-0">
                                                 <div className="flex gap-2">
@@ -575,26 +584,31 @@ const Info = () => {
                                 {selectedDis.length > 0 && <div className="flex flex-col w-full p-4 border-l border-gray-500">
                                     <div className="flex flex-col">
                                         <span className="text-base font-semibold">Selected Diseases</span>
-                                        <span className="text-xs mt-1 font-semibold text-gray-300">Please select the treatment from the selected disease data.</span>
+                                        <span className="text-xs mt-1 font-semibold text-gray-300">Select the treatment from the selected disease data.</span>
                                     </div>
                                     {isDLoading && <FullScreenLoader />}
                                     <SelectedDiseasesView selectedDisData={selectedDis} isValueInField={isValueInField} toggleFlatFieldValue={toggleFlatFieldValue} handleGetDeatils={handleGetDeatils} />
                                 </div>}
 
-                                {hasAnyPlan && <div className="flex flex-col w-full p-4 border-l border-gray-500">
+                                {hasAnyPlan && <div className="flex flex-col w-full p-4  border-l border-gray-500">
                                     <div className="flex justify-between">
                                         <div className="flex flex-col">
                                             <span className="text-base font-semibold">Treatment Plan</span>
                                             <span className="text-xs mt-1 font-semibold text-gray-300">Your final Treatment plan.</span>
                                         </div>
-                                        <div className="flex">
+                                        <div className="flex flex-col gap-1">
+                                            <Button label="View" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-blue-600" onClick={() => setVisible(true)} />
                                             <button type="button" className="text-sm font-semibold rounded-md px-4 h-8 border border-green-800 bg-green-600" onClick={() => { handleExport('Treatment Plan data has been exported') }}>Export</button>
                                         </div>
                                     </div>
 
-                                    <TreatmentPlanView treatmentPlan={treatmentPlan} symptoms={selectedSym} />
+                                    <div className="flex max-h-[60vh] overflow-auto">
+                                        <TreatmentPlanView treatmentPlan={treatmentPlan} symptoms={selectedSym} />
+                                    </div>
+
                                 </div>}
                             </div>}
+
 
                             {type === 'AI' && selectedTabInDocMarine == 'SYMPTOMS' && !aiPlan && questionsData.length > 0 && <div className="flex mt-4 w-full">
                                 {isDLoading && <FullScreenLoader />}
@@ -627,7 +641,94 @@ const Info = () => {
                     }
                 </div>
             </div>
-        </div>
+
+            <Dialog header="Treatment Plan" visible={visible} style={{ width: '60vw' }} onHide={() => { if (!visible) return; setVisible(false); }}>
+                <div className="p-6 rounded-2xl shadow-xl bg-white border border-gray-200 space-y-6">
+                    <h2 className="text-2xl font-bold text-blue-900">Diagnosis Overview</h2>
+
+                    <div className="space-y-6">
+                        {selectedDis.map((item, i) => (
+                            <div key={i} className="flex flex-col gap-1 border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded-lg">
+                                <h3 className="text-lg font-semibold text-blue-900">{item?.details.dName}</h3>
+                                <p className="text-sm text-gray-700"><span className="font-medium underline underline-offset-2">Category:</span> {item?.details.category}</p>
+                                <p className="text-sm text-gray-700">
+                                    <span className="font-medium underline underline-offset-2">Common Symptoms of {item?.details.dName}:</span> {item?.details.symptoms}
+                                </p>
+                                <p className="text-sm text-gray-700"><span className="font-medium underline underline-offset-2">Description:</span> {item?.details.description}</p>
+
+                            </div>
+                        ))}
+                    </div>
+
+                    {selectedSym.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Patient-Reported Symptoms</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {selectedSym.map((item, i) => (
+                                    <li key={i}>{item?.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.procedures.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Procedures</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.procedures.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.medicines.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Medicines</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.medicines.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.salts.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Salts</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.salts.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.lab_tests.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Recommended Lab Tests</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.lab_tests.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {treatmentPlan.follow_up.length > 0 && (
+                        <div>
+                            <h3 className="text-lg font-semibold text-red-700 mb-2">Follow-Up Recommendations</h3>
+                            <ul className="list-disc ml-6 text-sm text-gray-800 space-y-1">
+                                {treatmentPlan.follow_up.map((item, i) => (
+                                    <li key={i}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </div>
+
+            </Dialog >
+        </div >
     )
 }
 
