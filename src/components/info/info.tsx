@@ -452,9 +452,28 @@ const Info = () => {
     }
 
     const [visible, setVisible] = useState(false);
-    console.log({ selectedDis })
-    console.log({ treatmentPlan })
 
+    const handleManualAdd = (id: number, field: 'lab_tests' | 'procedures' | 'medicines' | 'salts' | 'advice' | 'follow_up', value: string) => {
+        if (!value.trim()) return; // skip empty input
+
+        setSelectedDis((prev) =>
+            prev.map((item) => {
+                if (item.id !== id) return item;
+
+                const existingValues = item.details[field]?.split(',').map(v => v.trim()).filter(Boolean) || [];
+                if (existingValues.includes(value.trim())) return item; // avoid duplicates
+
+                return {
+                    ...item,
+                    details: {
+                        ...item.details,
+                        [field]: [...existingValues, value.trim()].join(', ')
+                    }
+                };
+            })
+        );
+        toggleFlatFieldValue(field, value);
+    };
 
     return (
         <div className="relative bg-opacity-20 flex justify-center items-center z-0 pt-4">
@@ -538,7 +557,7 @@ const Info = () => {
                             {/* <LoaderIcon style={{ color: '#2D53EB' }} className="text-blue-500" /> */}
                             <FullScreenLoader />
                         </div> :
-                        <div className="flex ">
+                        <div className="flex w-full">
                             {type === 'NORMAL' && selectedTabInDocMarine == 'SYMPTOMS' && diseasesData.length > 0 && <div className="flex w-full z-50 relative bg-[#1F222E] border mt-5 min-h-[55vh] h-full rounded-md border-gray-500">
                                 <div className="flex flex-col w-full p-4 ">
                                     <div className={`flex ${selectedDis.length > 0 ? 'flex-col gap-4' : 'flex-row gap-2'} w-full `}>
@@ -587,7 +606,7 @@ const Info = () => {
                                         <span className="text-xs mt-1 font-semibold text-gray-300">Select the treatment from the selected disease data.</span>
                                     </div>
                                     {isDLoading && <FullScreenLoader />}
-                                    <SelectedDiseasesView selectedDisData={selectedDis} isValueInField={isValueInField} toggleFlatFieldValue={toggleFlatFieldValue} handleGetDeatils={handleGetDeatils} />
+                                    <SelectedDiseasesView selectedDisData={selectedDis} isValueInField={isValueInField} toggleFlatFieldValue={toggleFlatFieldValue} handleGetDeatils={handleGetDeatils} handleManualAddData={handleManualAdd} />
                                 </div>}
 
                                 {hasAnyPlan && <div className="flex flex-col w-full p-4  border-l border-gray-500">
